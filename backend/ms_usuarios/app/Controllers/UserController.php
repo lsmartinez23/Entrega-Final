@@ -13,7 +13,7 @@ class UserController {
         $user = User::create([
             "name" => $data["name"],
             "email" => $data["email"],
-            "password" => $data["password"],
+            "password" => password_hash($data["password"], PASSWORD_DEFAULT),
             "role" => "gestor"
         ]);
 
@@ -22,32 +22,44 @@ class UserController {
     }
 
     public function login($request, $response)
-    {
-        $data = $request->getParsedBody();
+{
+    $data = $request->getParsedBody();
 
-        $user = User::where("email", $data["email"])
-                    ->where("password", $data["password"])
-                    ->first();
 
-        if (!$user) {
-            return $response->withStatus(401)
-                ->withHeader("Content-Type", "application/json")
-                ->write(json_encode(["error" => "Credenciales incorrectas"]));
-        }
+    $user = User::where("email", $data["email"])->first();
 
-        $token = bin2hex(random_bytes(20));
 
-        AuthToken::updateOrCreate(
-            ["user_id" => $user->id],
-            ["token" => $token]
-        );
+    if (!$user || !password_verify($data["password"], $user->password)) {
 
-        $response->getBody()->write(json_encode([
-            "token" => $token,
-            "role" => $user->role
-        ]));
-        return $response;
+        $payload = json_encode(["error" => "Credenciales incorrectas"]);
+        $response->getBody()->write($payload);
+
+        return $response
+            ->withHeader("Content-Type", "application/json")
+            ->withStatus(401);
     }
+
+
+    $token = bin2hex(random_bytes(20));
+
+    AuthToken::updateOrCreate(
+        ["user_id" => $user->id],
+        ["token" => $token]
+    );
+
+    $payload = json_encode([
+        "token" => $token,
+        "role" => $user->role,
+        "user_id" => $user->id
+    ]);
+
+    $response->getBody()->write($payload);
+
+    return $response->withHeader("Content-Type", "application/json");
+}
+
+
+
 
     public function logout($request, $response)
     {
