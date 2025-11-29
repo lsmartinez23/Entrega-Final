@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Ticket</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="verificarSesion('gestor')">
+
+<div class="contenedor">
+    <h1>Crear nuevo ticket</h1>
+
+    <label>Título</label>
+    <input type="text" id="titulo" placeholder="Título del ticket">
+
+    <label>Descripción</label>
+    <textarea id="descripcion" rows="4" placeholder="Describe el problema..."></textarea>
+
+    <button onclick="crearTicket()">Guardar ticket</button>
+
+    <div id="mensaje" class="alerta" style="display:none;"></div>
+
+    <p style="margin-top:15px;">
+        <a href="panel.html">Volver al panel</a>
+    </p>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+function crearTicket() {
+    const titulo = document.getElementById("titulo").value;
+    const descripcion = document.getElementById("descripcion").value;
+    const mensaje = document.getElementById("mensaje");
+
+    if (!titulo || !descripcion) {
+        mensaje.style.display = "block";
+        mensaje.className = "alerta alerta-error";
+        mensaje.innerText = "Debe llenar todos los campos.";
+        return;
+    }
+
+    const token = getToken();
+    const gestorId = getUserId();
+
+    fetch(API_TICKETS + "/tickets/crear", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "token": token
+        },
+        body: JSON.stringify({
+            titulo: titulo,
+            descripcion: descripcion,
+            gestor_id: gestorId
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            mensaje.style.display = "block";
+            mensaje.className = "alerta alerta-error";
+            mensaje.innerText = data.error;
+            return;
+        }
+        mensaje.style.display = "block";
+        mensaje.className = "alerta alerta-ok";
+        mensaje.innerText = "Ticket creado correctamente.";
+        titulo.value = "";
+        descripcion.value = "";
+    })
+    .catch(err => {
+        mensaje.style.display = "block";
+        mensaje.className = "alerta alerta-error";
+        mensaje.innerText = "Error al crear el ticket.";
+        console.error(err);
+    });
+}
+</script>
+
+</body>
+</html>

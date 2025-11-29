@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Soporte</title>
+    <link rel="stylesheet" href="../frontend/css/estilos.css">
+
+
+    <script defer src="js/auth.js"></script>
+
+</head>
+<body>
+
+<div class="contenedor">
+    <h1>Inicio de sesión</h1>
+
+    <input type="email" id="email" placeholder="Correo" />
+    <input type="password" id="password" placeholder="Contraseña" />
+
+    <button type="button" onclick="login()">Ingresar</button>
+
+    <div id="mensaje" class="alerta" style="display:none;"></div>
+</div>
+
+<script>
+function login() {
+    const correo  = document.getElementById("email").value;
+    const pass    = document.getElementById("password").value;
+    const mensaje = document.getElementById("mensaje");
+
+    if (!correo || !pass) {
+        mensaje.style.display = "block";
+        mensaje.className = "alerta alerta-error";
+        mensaje.innerText = "Debe llenar todos los campos.";
+        return;
+    }
+
+    console.log("Enviando login a:", API_USUARIOS + "/usuarios/login");
+
+    fetch(API_USUARIOS + "/usuarios/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: correo,
+            password: pass
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            mensaje.style.display = "block";
+            mensaje.className = "alerta alerta-error";
+            mensaje.innerText = data.error;
+            return;
+        }
+
+        saveSession(data);
+
+        if (data.role === "gestor") {
+            window.location.href = "gestor/panel.html";
+        } else if (data.role === "admin") {
+            window.location.href = "admin/panel.html";
+        } else {
+            mensaje.style.display = "block";
+            mensaje.className = "alerta alerta-error";
+            mensaje.innerText = "Rol desconocido.";
+        }
+    })
+    .catch(err => {
+        console.error("Error en fetch login:", err);
+        mensaje.style.display = "block";
+        mensaje.className = "alerta alerta-error";
+        mensaje.innerText = "Error en el servidor.";
+    });
+}
+</script>
+
+</body>
+</html>
+

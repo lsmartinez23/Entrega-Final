@@ -1,0 +1,18 @@
+### PROBAR LOGIN DIRECTO AL MICROSERVICIO
+POST http://localhost:8090/usuarios/login
+Content-Type: application/json
+
+{
+  "email": "gestor1@example.com",
+  "password": "password123"
+}
+
+{
+  "email": "gestor2@example.com",
+  "password": "password123"
+}
+
+{
+  "email": "admin1@example.com",
+  "password": "password123"
+}

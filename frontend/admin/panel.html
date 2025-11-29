@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="verificarSesion('admin')">
+
+<div class="contenedor">
+    <h1>Panel del Administrador</h1>
+
+    <div class="menu">
+        <a href="usuarios.html">Gestión de usuarios</a>
+        <a href="tickets.html">Gestión de tickets</a>
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+    </div>
+
+    <p>Desde aquí el administrador puede ver y gestionar usuarios y tickets.</p>
+</div>
+
+<script src="../js/auth.js"></script>
+</body>
+</html>

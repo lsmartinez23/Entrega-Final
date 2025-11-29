@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tickets</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="cargarTickets()">
+
+<div class="contenedor">
+    <h1>Gestión de tickets</h1>
+
+    <div class="menu">
+        <a href="panel.html">Panel</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+    </div>
+
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Gestor</th>
+                <th>Admin</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-tickets"></tbody>
+    </table>
+
+    <h3>Cambiar estado de un ticket</h3>
+    <input type="number" id="ticket_estado_id" placeholder="ID ticket">
+    <select id="nuevo_estado">
+        <option value="abierto">Abierto</option>
+        <option value="en_progreso">En progreso</option>
+        <option value="resuelto">Resuelto</option>
+        <option value="cerrado">Cerrado</option>
+    </select>
+    <button onclick="cambiarEstado()">Actualizar estado</button>
+
+    <h3 style="margin-top:20px;">Asignar ticket a admin</h3>
+    <input type="number" id="ticket_asignar_id" placeholder="ID ticket">
+    <input type="number" id="admin_id" placeholder="ID administrador">
+    <button onclick="asignarTicket()">Asignar</button>
+
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+function cargarTickets() {
+    verificarSesion('admin');
+
+    fetch(API_TICKETS + "/tickets/todos", {
+        headers: {"token": getToken()}
+    })
+    .then(r => r.json())
+    .then(data => {
+        const tbody = document.getElementById("tbody-tickets");
+        tbody.innerHTML = "";
+
+        data.forEach(t => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${t.id}</td>
+                <td>${t.titulo}</td>
+                <td>${t.estado}</td>
+                <td>${t.gestor_id}</td>
+                <td>${t.admin_id ?? "-"}</td>
+            `;
+            tbody.appendChild(fila);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al cargar tickets");
+    });
+}
+
+function cambiarEstado() {
+    const ticketId = document.getElementById("ticket_estado_id").value;
+    const estado   = document.getElementById("nuevo_estado").value;
+    const adminId  = getUserId(); // el admin logueado
+
+    if (!ticketId) {
+        alert("Debe indicar el ID del ticket");
+        return;
+    }
+
+    fetch(API_TICKETS + "/tickets/estado", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "token": getToken()
+        },
+        body: JSON.stringify({
+            ticket_id: ticketId,
+            estado: estado,
+            admin_id: adminId
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert(data.msg || "Estado actualizado");
+        cargarTickets();
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al actualizar estado");
+    });
+}
+
+function asignarTicket() {
+    const ticketId = document.getElementById("ticket_asignar_id").value;
+    const adminId  = document.getElementById("admin_id").value;
+
+    if (!ticketId || !adminId) {
+        alert("Debe indicar ID de ticket e ID de admin");
+        return;
+    }
+
+    fetch(API_TICKETS + "/tickets/asignar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "token": getToken()
+        },
+        body: JSON.stringify({
+            ticket_id: ticketId,
+            admin_id: adminId
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert(data.msg || "Ticket asignado");
+        cargarTickets();
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al asignar ticket");
+    });
+}
+</script>
+
+</body>
+</html>

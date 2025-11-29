@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="cargarUsuarios()">
+
+<div class="contenedor">
+    <h1>Gestión de usuarios</h1>
+
+    <div class="menu">
+        <a href="panel.html">Panel</a>
+        <a href="tickets.html">Tickets</a>
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+    </div>
+
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+    </table>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+function cargarUsuarios() {
+    verificarSesion('admin');
+
+    fetch(API_USUARIOS + "/usuarios/listar", {
+        headers: {"token": getToken()}
+    })
+    .then(r => r.json())
+    .then(data => {
+        const tbody = document.getElementById("tbody-usuarios");
+        tbody.innerHTML = "";
+
+        data.forEach(u => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${u.id}</td>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.role}</td>
+            `;
+            tbody.appendChild(fila);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al cargar usuarios");
+    });
+}
+</script>
+
+</body>
+</html>

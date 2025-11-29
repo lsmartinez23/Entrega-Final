@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Tickets</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="cargarMisTickets()">
+
+<div class="contenedor">
+    <h1>Mis tickets</h1>
+
+    <div class="menu">
+        <a href="panel.html">Panel</a>
+        <a href="crear_ticket.html">Crear ticket</a>
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+    </div>
+
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-tickets"></tbody>
+    </table>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+function cargarMisTickets() {
+    verificarSesion('gestor');
+
+    const token = getToken();
+    const gestorId = getUserId();
+
+    fetch(API_TICKETS + "/tickets/mis?gestor_id=" + gestorId, {
+        headers: {
+            "token": token
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const tbody = document.getElementById("tbody-tickets");
+        tbody.innerHTML = "";
+
+        data.forEach(t => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${t.id}</td>
+                <td>${t.titulo}</td>
+                <td>${t.estado}</td>
+            `;
+            tbody.appendChild(fila);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error al cargar los tickets");
+    });
+}
+</script>
+
+</body>
+</html>

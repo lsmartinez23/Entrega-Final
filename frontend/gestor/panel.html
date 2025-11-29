@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Gestor</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body onload="verificarSesion('gestor')">
+
+<div class="contenedor">
+    <h1>Panel del Gestor</h1>
+
+    <div class="menu">
+        <a href="crear_ticket.html">Crear ticket</a>
+        <a href="mis_tickets.html">Mis tickets</a>
+        <a href="#" onclick="logout()">Cerrar sesión</a>
+    </div>
+
+    <p>Bienvenido, gestor. Desde aquí puedes crear tickets y revisar los que has reportado.</p>
+</div>
+
+<script src="../js/auth.js"></script>
+</body>
+</html>
